@@ -1,50 +1,40 @@
-name: Build Android App
+name: Android CI
 
+# متى يتم تشغيل هذا البناء؟ (عند الرفع أو عمل Pull Request على فرع main)
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+    # 1. سحب الكود من المستودع
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+    # 2. إعداد بيئة الجافا (Java 17 هي الموصى بها حالياً لأندرويد)
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
 
-      - name: Install dependencies
-        run: npm ci
+    # 3. إعطاء صلاحية التنفيذ لملف gradlew (هذا هو السطر الذي يحل مشكلتك)
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
 
-      - name: Build Web App
-        run: npm run build
+    # 4. بناء التطبيق (نسخة Debug)
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: اجعل gradlew قابلاً للتنفيذ
-        run: chmod +x ./android/gradlew
-
-      - name: Build APK
-        working-directory: ./android
-        run: ./gradlew assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+    # 5. (اختياري) رفع ملف الـ APK الناتج لتتمكن من تحميله من صفحة GitHub Actions
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
