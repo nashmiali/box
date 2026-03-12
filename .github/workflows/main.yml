@@ -1,40 +1,62 @@
-name: Android CI
+name: Build Android App
 
-# متى يتم تشغيل هذا البناء؟ (عند الرفع أو عمل Pull Request على فرع main)
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+  workflow_dispatch: # يسمح لك بتشغيل البناء يدوياً من GitHub
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. سحب الكود من المستودع
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # 1. سحب الكود
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # 2. إعداد بيئة الجافا (Java 17 هي الموصى بها حالياً لأندرويد)
-    - name: set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+      # 2. إعداد Node.js (مطلوب لمشاريع Capacitor)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-    # 3. إعطاء صلاحية التنفيذ لملف gradlew (هذا هو السطر الذي يحل مشكلتك)
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
+      # 3. تثبيت الحزم (Dependencies)
+      - name: Install dependencies
+        run: npm install
 
-    # 4. بناء التطبيق (نسخة Debug)
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      # 4. بناء تطبيق الويب
+      - name: Build Web App
+        run: npm run build
 
-    # 5. (اختياري) رفع ملف الـ APK الناتج لتتمكن من تحميله من صفحة GitHub Actions
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+      # 5. إعداد Java 17 للأندرويد
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 6. إعداد Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 7. مزامنة تطبيق الويب مع مجلد الأندرويد
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # 8. إعطاء صلاحية التنفيذ لملف gradlew (لاحظ أننا حددنا مسار المجلد android)
+      - name: Make gradlew executable
+        working-directory: ./android
+        run: chmod +x ./gradlew
+
+      # 9. بناء تطبيق الأندرويد (APK)
+      - name: Build APK
+        working-directory: ./android
+        run: ./gradlew assembleDebug
+
+      # 10. رفع ملف الـ APK لتتمكن من تحميله
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
