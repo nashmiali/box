@@ -1,61 +1,51 @@
-name: Build Android App
+name: Build Android APK
 
 on:
   push:
-    branches: [ "main", "master" ]
-  workflow_dispatch: # يسمح لك بتشغيل البناء يدوياً من GitHub
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-      # 1. سحب الكود
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Source
+        uses: actions/checkout@v3
 
-      # 2. إعداد Node.js (مطلوب لمشاريع Capacitor)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 18
 
-      # 3. تثبيت الحزم (Dependencies)
-      - name: Install dependencies
-        run: npm install
-
-      # 4. بناء تطبيق الويب
-      - name: Build Web App
-        run: npm run build
-
-      # 5. إعداد Java 17 للأندرويد
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 6. إعداد Android SDK
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Dependencies
+        run: npm install
 
-      # 7. مزامنة تطبيق الويب مع مجلد الأندرويد
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Add Android Platform
+        run: npx cap add android
+
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx cap sync
 
-      # 8. إعطاء صلاحية التنفيذ لملف gradlew (لاحظ أننا حددنا مسار المجلد android)
-      - name: Make gradlew executable
-        working-directory: ./android
-        run: chmod +x ./gradlew
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
-      # 9. بناء تطبيق الأندرويد (APK)
-      - name: Build APK
-        working-directory: ./android
-        run: ./gradlew assembleDebug
-
-      # 10. رفع ملف الـ APK لتتمكن من تحميله
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
