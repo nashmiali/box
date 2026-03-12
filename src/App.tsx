@@ -4,6 +4,9 @@
  */
 
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Splash from './pages/Splash';
@@ -17,11 +20,41 @@ import Settings from './pages/Settings';
 import Details from './pages/Details';
 import Player from './pages/Player';
 
+function CapacitorSetup() {
+  useEffect(() => {
+    const setupCapacitor = async () => {
+      try {
+        await StatusBar.setStyle({ style: Style.Dark });
+        await StatusBar.setBackgroundColor({ color: '#000000' });
+      } catch (e) {
+        // Ignore if not running on native device
+      }
+    };
+    
+    setupCapacitor();
+
+    const backButtonListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      if (!canGoBack) {
+        CapacitorApp.exitApp();
+      } else {
+        window.history.back();
+      }
+    });
+
+    return () => {
+      backButtonListener.then(listener => listener.remove());
+    };
+  }, []);
+
+  return null;
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <CapacitorSetup />
           <Routes>
             <Route path="/" element={<Splash />} />
             <Route path="/login" element={<Login />} />

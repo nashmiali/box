@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowRight, Play, Star, Clock, Calendar, Info, Loader2 } from 'lucide-react';
+import { ArrowRight, Play, Star, Clock, Calendar, Info, Loader2, Plus, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getVodInfo, getSeriesInfo, getStreamUrl } from '../services/xtream';
 
@@ -12,6 +12,7 @@ export default function Details() {
   const [info, setInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [inMyList, setInMyList] = useState(false);
 
   useEffect(() => {
     if (!user || !id || !type) return;
@@ -27,6 +28,13 @@ export default function Details() {
           data = await getSeriesInfo(user, id);
         }
         setInfo(data);
+        
+        // Check if in My List
+        const myListStr = localStorage.getItem('my_list');
+        if (myListStr) {
+          const myList = JSON.parse(myListStr);
+          setInMyList(myList.some((item: any) => item.id === id && item.type === type));
+        }
       } catch (err) {
         setError('فشل في جلب التفاصيل');
       } finally {
@@ -103,6 +111,31 @@ export default function Details() {
     }
   };
 
+  const toggleMyList = () => {
+    try {
+      const myListStr = localStorage.getItem('my_list');
+      let myList = myListStr ? JSON.parse(myListStr) : [];
+      
+      if (inMyList) {
+        myList = myList.filter((item: any) => !(item.id === id && item.type === type));
+        setInMyList(false);
+      } else {
+        myList.unshift({
+          id,
+          type,
+          title,
+          cover,
+          timestamp: Date.now()
+        });
+        setInMyList(true);
+      }
+      
+      localStorage.setItem('my_list', JSON.stringify(myList));
+    } catch (e) {
+      console.error("Failed to update my list", e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black pb-24 font-sans">
       {/* Hero Header */}
@@ -155,6 +188,17 @@ export default function Details() {
               >
                 <Info size={24} />
                 التريلر
+              </button>
+              <button
+                onClick={toggleMyList}
+                className={`flex items-center gap-3 px-10 py-4 rounded-full font-bold text-lg backdrop-blur-md transition-all border ${
+                  inMyList 
+                    ? 'bg-white/20 text-white border-white/40 hover:bg-white/30' 
+                    : 'bg-black/40 text-white border-white/20 hover:bg-black/60'
+                }`}
+              >
+                {inMyList ? <Check size={24} /> : <Plus size={24} />}
+                {inMyList ? 'في قائمتي' : 'أضف لقائمتي'}
               </button>
             </div>
           </motion.div>

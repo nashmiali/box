@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Search, Play, Loader2, ArrowRight, Tv } from 'lucide-react';
+import { Search, Play, Loader2, ArrowRight, Tv, Plus, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getLiveCategories, getLiveStreams, getStreamUrl } from '../services/xtream';
 
@@ -13,6 +13,7 @@ export default function LiveTV() {
   const [activeCategoryId, setActiveCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [myList, setMyList] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -36,6 +37,11 @@ export default function LiveTV() {
         
         const channelsList = Array.isArray(allChannels) ? allChannels : [];
         setChannels(channelsList);
+
+        const myListStr = localStorage.getItem('my_list');
+        if (myListStr) {
+          setMyList(JSON.parse(myListStr));
+        }
       } catch (error) {
         console.error('Failed to fetch live tv data', error);
       } finally {
@@ -45,6 +51,31 @@ export default function LiveTV() {
 
     fetchData();
   }, [user, navigate]);
+
+  const toggleMyList = (e: React.MouseEvent, channel: any) => {
+    e.stopPropagation();
+    try {
+      let newList = [...myList];
+      const isInList = newList.some((item) => item.id === channel.stream_id && item.type === 'live');
+      
+      if (isInList) {
+        newList = newList.filter((item) => !(item.id === channel.stream_id && item.type === 'live'));
+      } else {
+        newList.unshift({
+          id: channel.stream_id,
+          type: 'live',
+          title: channel.name,
+          cover: channel.stream_icon,
+          timestamp: Date.now()
+        });
+      }
+      
+      setMyList(newList);
+      localStorage.setItem('my_list', JSON.stringify(newList));
+    } catch (err) {
+      console.error("Failed to update my list", err);
+    }
+  };
 
   const filteredChannels = channels.filter((ch) => {
     const matchesSearch = ch.name?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -142,33 +173,43 @@ export default function LiveTV() {
         <div className="flex-1 flex flex-col overflow-hidden glass-panel rounded-[2rem] border border-white/5">
           <div className="flex-1 overflow-y-auto p-6 hide-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredChannels.map((channel) => (
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  key={channel.stream_id}
-                  onClick={() => handlePlay(channel)}
-                  className="flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-right w-full group"
-                >
-                  <div className="relative shrink-0">
-                    <div className="w-16 h-16 rounded-xl bg-zinc-900 p-1 shadow-inner border border-white/5 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={channel.stream_icon || 'https://picsum.photos/seed/placeholder/100/100'}
-                        alt={channel.name}
-                        className="w-full h-full object-contain rounded-lg"
-                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/fallback/100/100'; }}
-                      />
+              {filteredChannels.map((channel) => {
+                const isInList = myList.some((item) => item.id === channel.stream_id && item.type === 'live');
+                return (
+                  <motion.div
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    key={channel.stream_id}
+                    onClick={() => handlePlay(channel)}
+                    className="flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-right w-full group cursor-pointer relative"
+                  >
+                    <div className="relative shrink-0">
+                      <div className="w-16 h-16 rounded-xl bg-zinc-900 p-1 shadow-inner border border-white/5 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={channel.stream_icon || 'https://picsum.photos/seed/placeholder/100/100'}
+                          alt={channel.name}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/fallback/100/100'; }}
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                        <Play size={24} className="text-white ml-1" fill="currentColor" />
+                      </div>
                     </div>
-                    <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                      <Play size={24} className="text-white ml-1" fill="currentColor" />
+                    <div className="text-right flex-1 overflow-hidden">
+                      <h4 className="font-bold text-white truncate text-sm group-hover:text-primary transition-colors pr-6">{channel.name}</h4>
+                      <p className="text-xs text-zinc-500 mt-1 truncate">القناة {channel.num}</p>
                     </div>
-                  </div>
-                  <div className="text-right flex-1 overflow-hidden">
-                    <h4 className="font-bold text-white truncate text-sm group-hover:text-primary transition-colors">{channel.name}</h4>
-                    <p className="text-xs text-zinc-500 mt-1 truncate">القناة {channel.num}</p>
-                  </div>
-                </motion.button>
-              ))}
+                    
+                    <button
+                      onClick={(e) => toggleMyList(e, channel)}
+                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all z-10 opacity-0 group-hover:opacity-100"
+                    >
+                      {isInList ? <Check size={14} /> : <Plus size={14} />}
+                    </button>
+                  </motion.div>
+                );
+              })}
             </div>
             
             {filteredChannels.length === 0 && (

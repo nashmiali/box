@@ -45,13 +45,27 @@ export default function Layout() {
                     />
                   )}
                   <div className="relative z-10 flex flex-col items-center">
-                    <item.icon
-                      size={24}
-                      className={`mb-1.5 transition-all duration-500 ${
-                        isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : 'scale-100'
-                      }`}
-                      strokeWidth={isActive ? 2.5 : 2}
-                    />
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        scale: isActive ? 1.15 : 1,
+                        y: isActive ? -3 : 0,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 15,
+                        mass: 0.8
+                      }}
+                    >
+                      <item.icon
+                        size={24}
+                        className={`mb-1.5 transition-colors duration-500 ${
+                          isActive ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''
+                        }`}
+                        strokeWidth={isActive ? 2.5 : 2}
+                      />
+                    </motion.div>
                     <span className={`text-[11px] font-bold transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0 translate-y-2 absolute bottom-0'}`}>
                       {item.label}
                     </span>

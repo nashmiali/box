@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Play, Info, ChevronLeft, Loader2, Search } from 'lucide-react';
+import { Play, Info, ChevronLeft, Loader2, Search, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getVodStreams, getSeries } from '../services/xtream';
 
@@ -11,6 +11,7 @@ export default function Home() {
   const [recentMovies, setRecentMovies] = useState<any[]>([]);
   const [recentSeries, setRecentSeries] = useState<any[]>([]);
   const [continueWatching, setContinueWatching] = useState<any[]>([]);
+  const [myList, setMyList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,9 +37,22 @@ export default function Home() {
         if (cwStr) {
           try {
             const cwList = JSON.parse(cwStr);
+            // Sort by timestamp descending (most recent first)
+            cwList.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
             setContinueWatching(cwList);
           } catch (e) {
             console.error("Failed to parse continue watching list", e);
+          }
+        }
+
+        const myListStr = localStorage.getItem('my_list');
+        if (myListStr) {
+          try {
+            const parsedMyList = JSON.parse(myListStr);
+            parsedMyList.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
+            setMyList(parsedMyList);
+          } catch (e) {
+            console.error("Failed to parse my list", e);
           }
         }
       } catch (error) {
@@ -162,6 +176,40 @@ export default function Home() {
                   </motion.div>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {/* My List */}
+        {myList.length > 0 && (
+          <section>
+            <div className="flex justify-between items-center mb-6 px-2">
+              <h3 className="text-2xl font-bold text-white">قائمتي</h3>
+            </div>
+            <div className="flex gap-4 md:gap-6 overflow-x-auto hide-scrollbar pb-8 snap-x px-2">
+              {myList.map((item) => (
+                <motion.div
+                  whileHover={{ scale: 1.05, zIndex: 10 }}
+                  key={`${item.type}_${item.id}`}
+                  onClick={() => navigate(item.type === 'live' ? '/live' : `/details/${item.type}/${item.id}`)}
+                  className="min-w-[140px] md:min-w-[180px] snap-start cursor-pointer group relative"
+                >
+                  <div className={`relative ${item.type === 'live' ? 'aspect-video' : 'aspect-[2/3]'} rounded-2xl overflow-hidden shadow-lg mb-3 bg-zinc-900 border border-white/5`}>
+                    <img
+                      src={item.cover || 'https://picsum.photos/seed/placeholder/300/450'}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/fallback/300/450'; }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-[0_0_15px_rgba(229,9,20,0.6)]">
+                        <Play size={18} fill="currentColor" className="ml-1" />
+                      </div>
+                    </div>
+                  </div>
+                  <h4 className="font-bold text-zinc-300 group-hover:text-white transition-colors text-sm truncate px-1">{item.title}</h4>
+                </motion.div>
+              ))}
             </div>
           </section>
         )}
