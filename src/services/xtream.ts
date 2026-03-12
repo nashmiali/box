@@ -99,3 +99,31 @@ export const getStreamUrl = (user: UserInfo, type: 'live' | 'movie' | 'series', 
   
   return originalUrl;
 };
+
+export const performLogin = async (username: string, password: string, serverUrl: string) => {
+  const apiUrl = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
+  
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const options = {
+        url: apiUrl,
+        headers: { 'Content-Type': 'application/json' },
+      };
+      const response = await CapacitorHttp.get(options);
+      if (response.status >= 400) {
+        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
+      }
+      return response.data;
+    } else {
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
+      }
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('Login API Error:', error);
+    throw error;
+  }
+};

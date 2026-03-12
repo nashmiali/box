@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { User, Lock, Link as LinkIcon, Loader2, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { performLogin } from '../services/xtream';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -44,18 +45,7 @@ export default function Login() {
         return;
       }
 
-      const apiUrl = `${url}/player_api.php?username=${formData.username}&password=${formData.password}`;
-      const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
-      const response = await fetch(proxyUrl);
-      
-      if (!response.ok) {
-        if (response.status === 512) {
-          throw new Error('السيرفر لا يستجيب بشكل صحيح (الخطأ 512). يرجى التأكد من الرابط أو المحاولة لاحقاً.');
-        }
-        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
-      }
-      
-      const data = await response.json();
+      const data = await performLogin(formData.username, formData.password, url);
 
       if (data && data.user_info && data.user_info.auth === 1) {
         login({
@@ -98,7 +88,7 @@ export default function Login() {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md glass-panel rounded-[2rem] p-10 shadow-2xl"
+        className="relative z-10 w-full max-w-sm glass-panel rounded-[2rem] p-8 shadow-2xl"
       >
         <div className="text-center mb-10">
           <motion.div 

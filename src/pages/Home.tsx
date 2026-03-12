@@ -142,7 +142,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="px-4 md:px-12 space-y-12 relative z-20">
+      <div className="px-4 md:px-8 space-y-8 relative z-20">
         {/* Continue Watching */}
         {continueWatching.length > 0 && (
           <section>

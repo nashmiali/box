@@ -100,7 +100,7 @@ export default function Movies() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-10 pt-6 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-6 space-y-6">
         {/* Filter Bar */}
         <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar pb-2">
           <div className="w-12 h-12 rounded-full glass-panel flex items-center justify-center text-zinc-400 shrink-0">

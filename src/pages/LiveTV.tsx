@@ -102,7 +102,7 @@ export default function LiveTV() {
   return (
     <div className="flex flex-col h-screen bg-black w-full overflow-hidden">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 md:px-10 z-20 bg-gradient-to-b from-black/80 to-transparent shrink-0">
+      <header className="flex justify-between items-center p-4 md:px-8 z-20 bg-gradient-to-b from-black/80 to-transparent shrink-0">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full glass-button flex items-center justify-center text-white hover:bg-white/20 transition-all">
             <ArrowRight size={20} />
@@ -141,7 +141,7 @@ export default function LiveTV() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden px-4 md:px-8 pb-28 gap-6">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden px-4 md:px-6 pb-24 gap-4">
         {/* Sidebar / Categories */}
         <div className="w-full md:w-72 glass-panel rounded-[2rem] flex flex-col z-10 shrink-0 overflow-hidden border border-white/5">
           <div className="p-5 border-b border-white/5 bg-white/5">

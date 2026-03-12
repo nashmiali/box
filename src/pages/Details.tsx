@@ -147,12 +147,12 @@ export default function Details() {
           className="w-full h-full object-cover"
           onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/fallback/1920/1080'; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-6 md:p-16 z-20">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-6 md:p-12 z-20">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-7xl mx-auto w-full"
+            className="max-w-6xl mx-auto w-full"
           >
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-2xl leading-tight">{title}</h1>
             
@@ -205,7 +205,7 @@ export default function Details() {
         </div>
         
         {/* Top Navigation */}
-        <div className="absolute top-0 left-0 right-0 p-6 md:p-10 z-30 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        <div className="absolute top-0 left-0 right-0 p-4 md:p-8 z-30 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
           <button
             onClick={() => navigate(-1)}
             className="w-12 h-12 rounded-full glass-button flex items-center justify-center text-white hover:bg-white/20 transition-all"
@@ -216,7 +216,7 @@ export default function Details() {
       </div>
 
       {/* Details Section */}
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-12 relative z-20 -mt-10">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 space-y-8 relative z-20 -mt-10">
         <section className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/5">
           <h2 className="text-xl md:text-2xl font-black text-white mb-4 tracking-tight flex items-center gap-3">
             <span className="w-1.5 h-6 md:h-8 bg-primary rounded-full inline-block"></span>
