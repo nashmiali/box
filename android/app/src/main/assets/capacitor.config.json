@@ -1,0 +1,13 @@
+{
+	"appId": "com.boxitv.app",
+	"appName": "BoxiTV",
+	"webDir": "dist",
+	"server": {
+		"cleartext": true
+	},
+	"plugins": {
+		"CapacitorHttp": {
+			"enabled": true
+		}
+	}
+}

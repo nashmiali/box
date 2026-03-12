@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'TheYearOfHandicrafts';
+  src: url('https://alfont.com/wp-content/fonts/new-arabic-fonts//alfont_com_TheYearofHandicrafts-Black.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-primary: #E50914; /* Netflix Red for a premium streaming feel */
+  --color-primary-hover: #F40612;
+  --color-bg-light: var(--bg-color);
+  --color-text-main: var(--text-color);
+  --color-card-bg: var(--card-bg);
+  --font-sans: 'TheYearOfHandicrafts', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --bg-color: #0f0f11; /* Deep dark background by default for streaming */
+  --text-color: #ffffff;
+  --card-bg: #18181b;
+}
+
+.dark {
+  --bg-color: #09090b;
+  --text-color: #ffffff;
+  --card-bg: #18181b;
+}
+
+body {
+  font-family: 'TheYearOfHandicrafts', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  direction: rtl; /* Arabic is RTL */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for horizontal scrolling */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s ease-in-out;
+}
+img[loading] {
+  opacity: 0;
+}
+img.loaded {
+  opacity: 1;
+}
