@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { Browser } from '@capacitor/browser';
 import { ArrowRight, Play, Star, Clock, Calendar, Info, Loader2, Plus, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getVodInfo, getSeriesInfo, getStreamUrl } from '../services/xtream';
@@ -32,8 +33,12 @@ export default function Details() {
         // Check if in My List
         const myListStr = localStorage.getItem('my_list');
         if (myListStr) {
-          const myList = JSON.parse(myListStr);
-          setInMyList(myList.some((item: any) => item.id === id && item.type === type));
+          try {
+            const myList = JSON.parse(myListStr);
+            setInMyList(myList.some((item: any) => item.id === id && item.type === type));
+          } catch (e) {
+            console.error("Failed to parse my list", e);
+          }
         }
       } catch (err) {
         setError('فشل في جلب التفاصيل');
@@ -78,29 +83,22 @@ export default function Details() {
   const cast = details.cast || details.actors || 'غير محدد';
   const trailer = details.youtube_trailer || '';
 
-  const handlePlay = () => {
+  const handlePlay = async (url: string) => {
+    await Browser.open({ url });
+  };
+
+  const handleMoviePlay = () => {
     if (!user || !id) return;
-    
-    let url = '';
-    if (type === 'movie') {
-      const extension = movieData.container_extension || 'mp4';
-      url = getStreamUrl(user, 'movie', id, extension);
-      navigate('/player', { state: { url, title, id, type: 'movie', cover } });
-    } else {
-      // For series, we need to show episodes. For simplicity, just play the first episode if available.
-      const episodes = info.episodes;
-      if (episodes && Object.keys(episodes).length > 0) {
-        const firstSeason = Object.keys(episodes)[0];
-        const firstEpisode = episodes[firstSeason][0];
-        if (firstEpisode) {
-          const extension = firstEpisode.container_extension || 'mp4';
-          url = getStreamUrl(user, 'series', firstEpisode.id, extension);
-          navigate('/player', { state: { url, title: `${title} - S${firstSeason} E${firstEpisode.episode_num}`, id: firstEpisode.id, type: 'series', cover, seriesId: id } });
-        }
-      } else {
-        alert('لا توجد حلقات متاحة');
-      }
-    }
+    const extension = movieData.container_extension || 'mp4';
+    const url = getStreamUrl(user, 'movie', id, extension);
+    handlePlay(url);
+  };
+
+  const handleSeriesPlay = (ep: any, season: string) => {
+    if (!user) return;
+    const extension = ep.container_extension || 'mp4';
+    const url = getStreamUrl(user, 'series', ep.id, extension);
+    handlePlay(url);
   };
 
   const handleTrailer = () => {
@@ -176,7 +174,7 @@ export default function Details() {
 
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={handlePlay}
+                onClick={handleMoviePlay}
                 className="flex items-center gap-2 bg-white text-black px-6 md:px-8 py-3 rounded-full font-black text-base hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
               >
                 <Play size={20} fill="currentColor" />
@@ -268,13 +266,7 @@ export default function Details() {
                           </div>
                         </div>
                         <button
-                          onClick={() => {
-                            if (user) {
-                              const extension = ep.container_extension || 'mp4';
-                              const url = getStreamUrl(user, 'series', ep.id, extension);
-                              navigate('/player', { state: { url, title: `${title} - S${season} E${ep.episode_num}`, id: ep.id, type: 'series', cover, seriesId: id } });
-                            }
-                          }}
+                          onClick={() => handleSeriesPlay(ep, season)}
                           className="w-12 h-12 bg-white/10 border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all shadow-sm hover:scale-110 hover:shadow-[0_0_15px_rgba(229,9,20,0.5)]"
                         >
                           <Play size={20} fill="currentColor" className="ml-1" />

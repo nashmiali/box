@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { Browser } from '@capacitor/browser';
 import { Search, Play, Loader2, ArrowRight, Tv, Plus, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getLiveCategories, getLiveStreams, getStreamUrl } from '../services/xtream';
@@ -40,7 +41,11 @@ export default function LiveTV() {
 
         const myListStr = localStorage.getItem('my_list');
         if (myListStr) {
-          setMyList(JSON.parse(myListStr));
+          try {
+            setMyList(JSON.parse(myListStr));
+          } catch (e) {
+            console.error("Failed to parse my list", e);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch live tv data', error);
@@ -85,10 +90,10 @@ export default function LiveTV() {
     return ch.category_id === activeCategoryId;
   });
 
-  const handlePlay = (channel: any) => {
+  const handlePlay = async (channel: any) => {
     if (!user || !channel) return;
     const url = getStreamUrl(user, 'live', channel.stream_id, 'm3u8');
-    navigate('/player', { state: { url, title: channel.name, type: 'live' } });
+    await Browser.open({ url });
   };
 
   if (loading) {

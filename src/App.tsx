@@ -18,7 +18,6 @@ import Movies from './pages/Movies';
 import Series from './pages/Series';
 import Settings from './pages/Settings';
 import Details from './pages/Details';
-import Player from './pages/Player';
 
 function CapacitorSetup() {
   useEffect(() => {
@@ -66,7 +65,6 @@ export default function App() {
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="/details/:type/:id" element={<Details />} />
-            <Route path="/player" element={<Player />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
