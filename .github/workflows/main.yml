@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -30,8 +30,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          rm -f package-lock.json
-          npm install
+          rm -rf package-lock.json node_modules
+          npm install --include=optional
 
       - name: Build Web Assets
         run: npm run build
