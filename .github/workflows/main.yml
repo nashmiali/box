@@ -35,7 +35,7 @@ jobs:
         run: npm run build
 
       - name: Add Android Platform
-        run: if [ ! -d "android" ]; then npx cap add android; fi
+        run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync
@@ -43,7 +43,6 @@ jobs:
       - name: Build Android APK
         run: |
           cd android
-          chmod +x gradlew
           ./gradlew assembleDebug
 
       - name: Upload APK Artifact
