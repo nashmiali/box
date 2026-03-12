@@ -36,7 +36,10 @@ export const fetchApi = async (user: UserInfo, action: string, params: Record<st
       };
       const response = await CapacitorHttp.get(options);
       if (response.status >= 400) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 512) {
+          throw new Error('السيرفر لا يستجيب بشكل صحيح (الخطأ 512). يرجى المحاولة لاحقاً.');
+        }
+        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
       }
       data = response.data;
     } else {
@@ -44,7 +47,10 @@ export const fetchApi = async (user: UserInfo, action: string, params: Record<st
       const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
       const response = await fetch(proxyUrl);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 512) {
+          throw new Error('السيرفر لا يستجيب بشكل صحيح (الخطأ 512). يرجى المحاولة لاحقاً.');
+        }
+        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
       }
       data = await response.json();
     }

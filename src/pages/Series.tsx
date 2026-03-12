@@ -84,7 +84,7 @@ export default function Series() {
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                 <Clapperboard size={24} />
               </div>
-              <h1 className="text-2xl font-black text-white tracking-tight">المسلسلات</h1>
+              <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">المسلسلات</h1>
             </div>
           </div>
           <div className="relative w-full md:w-96">
@@ -122,7 +122,7 @@ export default function Series() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-6 lg:gap-8">
           {displaySeries.map((series) => (
             <motion.div
               layout
@@ -132,9 +132,9 @@ export default function Series() {
               transition={{ duration: 0.3 }}
               key={series.series_id}
               onClick={() => navigate(`/details/series/${series.series_id}`)}
-              className="group cursor-pointer"
+              className="group cursor-pointer flex flex-col h-full"
             >
-              <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-lg mb-3 bg-zinc-900 border border-white/5">
+              <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-lg mb-3 bg-zinc-900 border border-white/5">
                 <img
                   src={series.cover || 'https://picsum.photos/seed/placeholder/300/450'}
                   alt={series.name}
@@ -147,12 +147,12 @@ export default function Series() {
                   </div>
                 </div>
                 {series.rating && series.rating !== "0" && (
-                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10">
+                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10">
                     {series.rating}
                   </div>
                 )}
               </div>
-              <h3 className="font-bold text-zinc-300 group-hover:text-white transition-colors text-sm truncate px-1">{series.name}</h3>
+              <h3 className="font-bold text-zinc-300 group-hover:text-white transition-colors text-sm md:text-base truncate px-1 mt-auto">{series.name}</h3>
             </motion.div>
           ))}
         </div>

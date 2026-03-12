@@ -1,4 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 font-sans antialiased;
+  }
+  
+  /* Focus states for TV/Remote navigation */
+  :focus-visible {
+    @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-zinc-950;
+  }
+}
 
 @font-face {
   font-family: 'TheYearOfHandicrafts';
@@ -29,6 +47,13 @@
   --card-bg: #18181b;
 }
 
+html {
+  /* Fluid scaling: 14px on mobile (375px), scales up to ~24px on 1080p TVs */
+  font-size: clamp(14px, 0.8vw + 11px, 24px);
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
 body {
   font-family: 'TheYearOfHandicrafts', sans-serif;
   background-color: var(--bg-color);
@@ -41,6 +66,30 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  
+  /* Native App Behaviors */
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  overflow-x: hidden;
+}
+
+/* Allow text selection in inputs */
+input, textarea {
+  user-select: auto;
+}
+
+/* Global Focus Styles for TV Remote Navigation */
+button:focus-visible, 
+a:focus-visible, 
+[role="button"]:focus-visible,
+input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--color-primary);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+  z-index: 50;
 }
 
 /* Custom Scrollbar for horizontal scrolling */

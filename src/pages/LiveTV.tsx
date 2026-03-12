@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Search, Play, Loader2, ArrowRight, Tv, Plus, Check } from 'lucide-react';
@@ -88,7 +88,7 @@ export default function LiveTV() {
   const handlePlay = (channel: any) => {
     if (!user || !channel) return;
     const url = getStreamUrl(user, 'live', channel.stream_id, 'm3u8');
-    navigate('/player', { state: { url, title: channel.name } });
+    navigate('/player', { state: { url, title: channel.name, type: 'live' } });
   };
 
   if (loading) {
@@ -111,7 +111,7 @@ export default function LiveTV() {
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
               <Tv size={24} />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">البث المباشر</h1>
+            <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">البث المباشر</h1>
           </div>
         </div>
         <div className="relative w-full max-w-xs hidden md:block">

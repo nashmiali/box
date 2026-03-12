@@ -5,6 +5,8 @@ import { Readable } from "stream";
 // Allow self-signed certificates for Xtream Codes servers
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+const streamLocks = new Map<string, { promise: Promise<void>, resolve: () => void }>();
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -38,11 +40,17 @@ async function startServer() {
         targetUrlObj.searchParams.append(key, value as string);
       });
 
+      const controller = new AbortController();
+      req.on('close', () => {
+        controller.abort();
+      });
+
       const response = await fetch(targetUrlObj.toString(), {
         method: req.method,
         headers: {
-          "User-Agent": req.headers["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
+          "User-Agent": "VLC/3.0.4 LibVLC/3.0.4"
+        },
+        signal: controller.signal
       });
 
       // Forward status and headers
@@ -61,7 +69,10 @@ async function startServer() {
       } else {
         res.end();
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return; // Client disconnected early
+      }
       console.error("Proxy error:", error);
       res.status(500).json({ error: "Proxy request failed" });
     }
@@ -69,6 +80,7 @@ async function startServer() {
 
   // Proxy route for video streams to bypass Mixed Content
   app.get("/api/stream", async (req, res) => {
+    let releaseLock: (() => void) | undefined;
     try {
       const targetUrl = req.query.url as string;
       if (!targetUrl) {
@@ -82,10 +94,32 @@ async function startServer() {
         return res.status(400).send("Invalid url parameter");
       }
 
+      // Wait for any existing stream to the same URL to finish/close
+      while (streamLocks.has(targetUrl)) {
+        await streamLocks.get(targetUrl)!.promise;
+      }
+
+      if (req.destroyed) {
+        return;
+      }
+
+      let resolveLock!: () => void;
+      const lockPromise = new Promise<void>(resolve => {
+        resolveLock = resolve;
+      });
+      streamLocks.set(targetUrl, { promise: lockPromise, resolve: resolveLock });
+
+      releaseLock = () => {
+        if (streamLocks.get(targetUrl)?.promise === lockPromise) {
+          streamLocks.delete(targetUrl);
+          resolveLock();
+        }
+      };
+
       const headers: Record<string, string> = {
-        "User-Agent": req.headers["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": "VLC/3.0.4 LibVLC/3.0.4",
         "Accept": "*/*",
-        "Connection": "keep-alive"
+        "Connection": "close"
       };
 
       // Forward Range header for VOD seeking
@@ -93,12 +127,52 @@ async function startServer() {
         headers["Range"] = req.headers.range;
       }
 
-      const response = await fetch(targetUrlObj.toString(), {
-        headers,
-        redirect: 'follow'
+      const controller = new AbortController();
+      
+      req.on('close', () => {
+        releaseLock();
+        controller.abort();
       });
 
+      let response: Response | null = null;
+      let retries = 5;
+      
+      while (retries > 0) {
+        try {
+          response = await fetch(targetUrlObj.toString(), {
+            headers,
+            redirect: 'follow',
+            signal: controller.signal
+          });
+
+          if (response.status === 456) {
+            console.log(`Received 456, retrying in 1000ms... (${retries} retries left)`);
+            if (response.body) {
+              await response.body.cancel().catch(() => {});
+            }
+            retries--;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          }
+          
+          break; // Success or other error
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            releaseLock();
+            return; // Client disconnected
+          }
+          releaseLock();
+          throw err;
+        }
+      }
+
+      if (!response) {
+        releaseLock();
+        return res.status(500).send("Failed to fetch stream");
+      }
+
       if (!response.ok) {
+        releaseLock();
         console.error(`Proxy failed for ${targetUrl}: ${response.status} ${response.statusText}`);
         // If 456, it might be a max connections or blocked UA issue
         if (response.status === 456) {
@@ -174,7 +248,13 @@ async function startServer() {
       } else {
         res.end();
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (releaseLock) {
+        releaseLock();
+      }
+      if (error.name === 'AbortError') {
+        return; // Client disconnected early
+      }
       console.error("Stream proxy error:", error);
       if (!res.headersSent) {
         res.status(500).send("Stream proxy failed");

@@ -23,11 +23,17 @@ export default function Login() {
 
     try {
       let url = formData.serverUrl.trim();
-      url = url.replace(/^(https?:\/\/)+/i, '');
-      url = 'http://' + url;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'http://' + url;
+      }
       
       if (url.endsWith('/')) {
         url = url.slice(0, -1);
+      }
+      
+      // Fix for MAG portal URLs (e.g., http://example.com:8080/c)
+      if (url.endsWith('/c')) {
+        url = url.slice(0, -2);
       }
 
       try {
@@ -43,7 +49,10 @@ export default function Login() {
       const response = await fetch(proxyUrl);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 512) {
+          throw new Error('السيرفر لا يستجيب بشكل صحيح (الخطأ 512). يرجى التأكد من الرابط أو المحاولة لاحقاً.');
+        }
+        throw new Error(`خطأ في الاتصال بالسيرفر (الرمز: ${response.status})`);
       }
       
       const data = await response.json();
@@ -96,12 +105,12 @@ export default function Login() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(229,9,20,0.5)]"
+            className="w-16 h-16 md:w-20 md:h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-[0_0_30px_rgba(229,9,20,0.5)]"
           >
-            <Play size={40} fill="currentColor" className="text-white ml-2" />
+            <Play size={32} fill="currentColor" className="text-white ml-1.5 md:ml-2" />
           </motion.div>
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">BOXITV</h1>
-          <p className="text-zinc-400 font-medium">سجل دخولك للبدء بالمشاهدة</p>
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">BOXITV</h1>
+          <p className="text-zinc-400 text-sm md:text-base font-medium">سجل دخولك للبدء بالمشاهدة</p>
         </div>
 
         {error && (
@@ -183,9 +192,9 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-white py-4 rounded-2xl text-lg font-bold shadow-[0_0_20px_rgba(229,9,20,0.3)] hover:shadow-[0_0_30px_rgba(229,9,20,0.5)] hover:bg-primary-hover transition-all duration-300 mt-8 flex justify-center items-center transform hover:-translate-y-1 active:translate-y-0"
+            className="w-full bg-primary text-white py-3.5 rounded-2xl text-base md:text-lg font-bold shadow-[0_0_20px_rgba(229,9,20,0.3)] hover:shadow-[0_0_30px_rgba(229,9,20,0.5)] hover:bg-primary-hover transition-all duration-300 mt-6 md:mt-8 flex justify-center items-center transform hover:-translate-y-1 active:translate-y-0"
           >
-            {loading ? <Loader2 className="animate-spin" size={24} /> : 'دخول'}
+            {loading ? <Loader2 className="animate-spin" size={20} /> : 'دخول'}
           </button>
         </form>
       </motion.div>

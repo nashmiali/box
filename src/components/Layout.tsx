@@ -1,11 +1,8 @@
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink } from 'react-router-dom';
 import { Home, Tv, Film, Clapperboard, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function Layout() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
   const navItems = [
     { path: '/home', icon: Home, label: 'الرئيسية' },
     { path: '/live', icon: Tv, label: 'مباشر' },
@@ -15,63 +12,48 @@ export default function Layout() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-color-bg-light pb-24">
+    <div className="flex flex-col md:flex-row min-h-screen bg-zinc-950">
+      {/* Sidebar Navigation (Desktop/Tablet/TV) */}
+      <nav className="hidden md:flex flex-col w-20 lg:w-64 bg-zinc-900/50 border-r border-zinc-800 p-4 gap-6">
+        <div className="text-2xl font-bold text-emerald-500 mb-8 px-2">NASHMMI</div>
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            data-tv-focusable
+            data-tv-id={item.path}
+            className={({ isActive }) =>
+              `flex items-center gap-4 p-3 rounded-xl transition-all ${
+                isActive ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
+              }`
+            }
+          >
+            <item.icon size={24} />
+            <span className="hidden lg:block font-medium">{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <Outlet />
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[500px] glass-panel shadow-2xl rounded-[2rem] z-50">
-        <div className="flex justify-around items-center h-20 px-4 w-full">
+      {/* Bottom Navigation (Mobile Only) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 z-50">
+        <div className="flex justify-around items-center h-16">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `relative flex flex-col items-center justify-center w-16 h-full transition-all duration-500 ${
-                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                `flex flex-col items-center justify-center w-full h-full ${
+                  isActive ? 'text-emerald-400' : 'text-zinc-500'
                 }`
               }
             >
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-indicator"
-                      className="absolute inset-0 bg-white/10 rounded-2xl"
-                      initial={false}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <div className="relative z-10 flex flex-col items-center">
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        scale: isActive ? 1.15 : 1,
-                        y: isActive ? -3 : 0,
-                      }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 15,
-                        mass: 0.8
-                      }}
-                    >
-                      <item.icon
-                        size={24}
-                        className={`mb-1.5 transition-colors duration-500 ${
-                          isActive ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' : ''
-                        }`}
-                        strokeWidth={isActive ? 2.5 : 2}
-                      />
-                    </motion.div>
-                    <span className={`text-[11px] font-bold transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0 translate-y-2 absolute bottom-0'}`}>
-                      {item.label}
-                    </span>
-                  </div>
-                </>
-              )}
+              <item.icon size={20} />
+              <span className="text-[10px] mt-1">{item.label}</span>
             </NavLink>
           ))}
         </div>

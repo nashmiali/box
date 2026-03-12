@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Play, Info, ChevronLeft, Loader2, Search, Plus } from 'lucide-react';
+import { Play, Info, ChevronLeft, Loader2, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getVodStreams, getSeries } from '../services/xtream';
+import { useTVNavigation } from '../hooks/useTVNavigation';
 
 export default function Home() {
   const { user } = useAuth();
@@ -13,6 +14,8 @@ export default function Home() {
   const [continueWatching, setContinueWatching] = useState<any[]>([]);
   const [myList, setMyList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useTVNavigation((id) => navigate(id));
 
   useEffect(() => {
     if (!user) {
@@ -92,7 +95,7 @@ export default function Home() {
           </div>
           
           <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20">
-            <h1 className="text-3xl font-black text-primary tracking-tighter drop-shadow-lg">BOXITV</h1>
+            <h1 className="text-2xl md:text-3xl font-black text-primary tracking-tighter drop-shadow-lg">BOXITV</h1>
             <div className="flex items-center gap-4">
               <button onClick={() => navigate('/movies')} className="w-10 h-10 rounded-full glass-button flex items-center justify-center text-white">
                 <Search size={20} />
@@ -109,25 +112,29 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="absolute bottom-0 left-0 right-0 p-6 md:p-16 flex flex-col justify-end z-10"
           >
-            <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-4 py-1.5 rounded-full w-max mb-4 border border-white/10">
+            <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full w-max mb-3 border border-white/10">
               أحدث الإضافات
             </span>
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl max-w-3xl leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-5 drop-shadow-2xl max-w-3xl leading-tight">
               {heroMovie.name}
             </h2>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button 
+                data-tv-focusable
+                data-tv-id={`/details/movie/${heroMovie.stream_id}`}
                 onClick={() => navigate(`/details/movie/${heroMovie.stream_id}`)}
-                className="flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full w-max hover:bg-zinc-200 transition-all font-bold shadow-xl hover:scale-105"
+                className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full w-max hover:bg-zinc-200 transition-all font-bold text-sm md:text-base shadow-xl hover:scale-105"
               >
-                <Play size={20} fill="currentColor" />
+                <Play size={18} fill="currentColor" />
                 شاهد الآن
               </button>
               <button 
+                data-tv-focusable
+                data-tv-id={`/details/movie/${heroMovie.stream_id}`}
                 onClick={() => navigate(`/details/movie/${heroMovie.stream_id}`)}
-                className="flex items-center gap-3 glass-button text-white px-8 py-3.5 rounded-full w-max font-bold hover:scale-105"
+                className="flex items-center gap-2 glass-button text-white px-6 py-3 rounded-full w-max font-bold text-sm md:text-base hover:scale-105"
               >
-                <Info size={20} />
+                <Info size={18} />
                 مزيد من المعلومات
               </button>
             </div>
@@ -140,7 +147,7 @@ export default function Home() {
         {continueWatching.length > 0 && (
           <section>
             <div className="flex justify-between items-center mb-6 px-2">
-              <h3 className="text-2xl font-bold text-white">متابعة المشاهدة</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">متابعة المشاهدة</h3>
             </div>
             <div className="flex gap-5 overflow-x-auto hide-scrollbar pb-6 snap-x px-2">
               {continueWatching.map((item) => {
@@ -150,7 +157,7 @@ export default function Home() {
                     whileHover={{ scale: 1.05, y: -5 }}
                     key={`${item.type}_${item.id}`}
                     onClick={() => navigate(`/details/${item.type}/${item.id}`)}
-                    className="min-w-[260px] md:min-w-[320px] snap-start cursor-pointer group"
+                    className="min-w-[16.25rem] md:min-w-[20rem] snap-start cursor-pointer group"
                   >
                     <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl mb-3 bg-zinc-900 border border-white/5">
                       <img
@@ -184,7 +191,7 @@ export default function Home() {
         {myList.length > 0 && (
           <section>
             <div className="flex justify-between items-center mb-6 px-2">
-              <h3 className="text-2xl font-bold text-white">قائمتي</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">قائمتي</h3>
             </div>
             <div className="flex gap-4 md:gap-6 overflow-x-auto hide-scrollbar pb-8 snap-x px-2">
               {myList.map((item) => (
@@ -192,7 +199,7 @@ export default function Home() {
                   whileHover={{ scale: 1.05, zIndex: 10 }}
                   key={`${item.type}_${item.id}`}
                   onClick={() => navigate(item.type === 'live' ? '/live' : `/details/${item.type}/${item.id}`)}
-                  className="min-w-[140px] md:min-w-[180px] snap-start cursor-pointer group relative"
+                  className="min-w-[8.75rem] md:min-w-[11.25rem] snap-start cursor-pointer group relative"
                 >
                   <div className={`relative ${item.type === 'live' ? 'aspect-video' : 'aspect-[2/3]'} rounded-2xl overflow-hidden shadow-lg mb-3 bg-zinc-900 border border-white/5`}>
                     <img
@@ -242,7 +249,7 @@ function PosterCarousel({ title, items, type, onViewAll }: { title: string; item
   return (
     <section>
       <div className="flex justify-between items-center mb-6 px-2">
-        <h3 className="text-2xl font-bold text-white">{title}</h3>
+        <h3 className="text-xl md:text-2xl font-bold text-white">{title}</h3>
         <button onClick={onViewAll} className="text-zinc-400 text-sm font-bold flex items-center hover:text-white transition-colors">
           عرض الكل <ChevronLeft size={18} className="mr-1" />
         </button>
@@ -253,7 +260,7 @@ function PosterCarousel({ title, items, type, onViewAll }: { title: string; item
             whileHover={{ scale: 1.05, zIndex: 10 }}
             key={item.stream_id || item.series_id}
             onClick={() => navigate(`/details/${type}/${item.stream_id || item.series_id}`)}
-            className="min-w-[140px] md:min-w-[180px] snap-start cursor-pointer group relative"
+            className="min-w-[8.75rem] md:min-w-[11.25rem] snap-start cursor-pointer group relative"
           >
             <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-lg mb-3 bg-zinc-900 border border-white/5">
               <img

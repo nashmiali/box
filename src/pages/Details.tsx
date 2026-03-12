@@ -154,9 +154,9 @@ export default function Details() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-7xl mx-auto w-full"
           >
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight drop-shadow-2xl leading-tight">{title}</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-2xl leading-tight">{title}</h1>
             
-            <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-white mb-8">
+            <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm font-bold text-white mb-6">
               <span className="flex items-center gap-1.5 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                 <Star size={18} className="text-primary" fill="currentColor" />
                 {rating}
@@ -174,30 +174,30 @@ export default function Details() {
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={handlePlay}
-                className="flex items-center gap-3 bg-primary text-white px-10 py-4 rounded-full font-black text-lg hover:scale-105 transition-all shadow-[0_0_30px_rgba(229,9,20,0.4)]"
+                className="flex items-center gap-2 bg-white text-black px-6 md:px-8 py-3 rounded-full font-black text-base hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
               >
-                <Play size={24} fill="currentColor" />
+                <Play size={20} fill="currentColor" />
                 شاهد الآن
               </button>
               <button
                 onClick={handleTrailer}
-                className="flex items-center gap-3 bg-white/10 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 backdrop-blur-md transition-all border border-white/20"
+                className="flex items-center gap-2 bg-white/10 text-white px-6 md:px-8 py-3 rounded-full font-bold text-base hover:bg-white/20 backdrop-blur-md transition-all border border-white/20"
               >
-                <Info size={24} />
+                <Info size={20} />
                 التريلر
               </button>
               <button
                 onClick={toggleMyList}
-                className={`flex items-center gap-3 px-10 py-4 rounded-full font-bold text-lg backdrop-blur-md transition-all border ${
+                className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full font-bold text-base backdrop-blur-md transition-all border ${
                   inMyList 
                     ? 'bg-white/20 text-white border-white/40 hover:bg-white/30' 
                     : 'bg-black/40 text-white border-white/20 hover:bg-black/60'
                 }`}
               >
-                {inMyList ? <Check size={24} /> : <Plus size={24} />}
+                {inMyList ? <Check size={20} /> : <Plus size={20} />}
                 {inMyList ? 'في قائمتي' : 'أضف لقائمتي'}
               </button>
             </div>
@@ -217,54 +217,54 @@ export default function Details() {
 
       {/* Details Section */}
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-12 relative z-20 -mt-10">
-        <section className="glass-panel p-8 md:p-10 rounded-[2rem] border border-white/5">
-          <h2 className="text-2xl font-black text-white mb-6 tracking-tight flex items-center gap-3">
-            <span className="w-2 h-8 bg-primary rounded-full inline-block"></span>
+        <section className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/5">
+          <h2 className="text-xl md:text-2xl font-black text-white mb-4 tracking-tight flex items-center gap-3">
+            <span className="w-1.5 h-6 md:h-8 bg-primary rounded-full inline-block"></span>
             القصة
           </h2>
-          <p className="text-zinc-400 leading-relaxed text-lg font-medium max-w-4xl">{description}</p>
+          <p className="text-zinc-400 leading-relaxed text-base md:text-lg font-medium max-w-4xl">{description}</p>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-panel p-8 rounded-[2rem] border border-white/5">
-            <h3 className="font-black text-white mb-4 text-xl tracking-tight flex items-center gap-3">
-              <span className="w-1.5 h-6 bg-primary rounded-full inline-block"></span>
+          <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/5">
+            <h3 className="font-black text-white mb-3 text-lg md:text-xl tracking-tight flex items-center gap-3">
+              <span className="w-1.5 h-5 md:h-6 bg-primary rounded-full inline-block"></span>
               طاقم العمل
             </h3>
-            <p className="text-zinc-400 leading-relaxed font-medium">{cast}</p>
+            <p className="text-zinc-400 leading-relaxed text-sm md:text-base font-medium">{cast}</p>
           </div>
-          <div className="glass-panel p-8 rounded-[2rem] border border-white/5">
-            <h3 className="font-black text-white mb-4 text-xl tracking-tight flex items-center gap-3">
-              <span className="w-1.5 h-6 bg-primary rounded-full inline-block"></span>
+          <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/5">
+            <h3 className="font-black text-white mb-3 text-lg md:text-xl tracking-tight flex items-center gap-3">
+              <span className="w-1.5 h-5 md:h-6 bg-primary rounded-full inline-block"></span>
               المخرج
             </h3>
-            <p className="text-zinc-400 leading-relaxed font-medium">{director}</p>
+            <p className="text-zinc-400 leading-relaxed text-sm md:text-base font-medium">{director}</p>
           </div>
         </section>
 
         {/* Episodes List for Series */}
         {type === 'series' && info.episodes && (
           <section>
-            <h2 className="text-3xl font-black text-white mb-8 tracking-tight flex items-center gap-3">
-              <span className="w-2 h-8 bg-primary rounded-full inline-block"></span>
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-6 tracking-tight flex items-center gap-3">
+              <span className="w-1.5 h-6 md:h-8 bg-primary rounded-full inline-block"></span>
               الحلقات
             </h2>
             <div className="space-y-6">
               {Object.keys(info.episodes).map((season) => (
                 <div key={season} className="glass-panel rounded-[2rem] border border-white/5 overflow-hidden">
-                  <div className="bg-white/5 p-6 border-b border-white/5">
-                    <h3 className="font-black text-xl text-white">الموسم {season}</h3>
+                  <div className="bg-white/5 p-5 border-b border-white/5">
+                    <h3 className="font-black text-lg md:text-xl text-white">الموسم {season}</h3>
                   </div>
                   <div className="divide-y divide-white/5 p-2">
                     {info.episodes[season].map((ep: any) => (
-                      <div key={ep.id} className="p-4 flex items-center justify-between hover:bg-white/5 rounded-2xl transition-colors group">
-                        <div className="flex items-center gap-6">
-                          <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary font-black text-xl border border-primary/20">
+                      <div key={ep.id} className="p-3 md:p-4 flex items-center justify-between hover:bg-white/5 rounded-2xl transition-colors group">
+                        <div className="flex items-center gap-4 md:gap-6">
+                          <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary font-black text-lg md:text-xl border border-primary/20">
                             {ep.episode_num}
                           </div>
                           <div>
-                            <h4 className="font-bold text-lg text-white group-hover:text-primary transition-colors">{ep.title || `الحلقة ${ep.episode_num}`}</h4>
-                            <p className="text-sm text-zinc-500 font-medium mt-1">{ep.info?.duration || 'N/A'}</p>
+                            <h4 className="font-bold text-base md:text-lg text-white group-hover:text-primary transition-colors">{ep.title || `الحلقة ${ep.episode_num}`}</h4>
+                            <p className="text-xs md:text-sm text-zinc-500 font-medium mt-1">{ep.info?.duration || 'N/A'}</p>
                           </div>
                         </div>
                         <button
