@@ -29,7 +29,9 @@ jobs:
           java-version: '17'
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Build Web Assets
         run: npm run build
